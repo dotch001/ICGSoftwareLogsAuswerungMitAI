@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ICGSoftwareLogsAuswerungMitAI": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
