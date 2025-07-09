@@ -63,7 +63,7 @@ namespace ICGSoftware.LogAuswertung
                 fileNames = Directory.GetFiles(settings.inputFolderPaths[i]);
 
                 //making output folder
-                if (settings.outputFolderPath == "")
+                if (settings.outputFolderPath == null)
                 {
                     outputFolder = settings.inputFolderPaths[i] + "\\Output";
                     while (Directory.Exists(outputFolder)) { OverwritePrevention++; outputFolder = settings.inputFolderPaths[i] + "\\Output" + OverwritePrevention; }
@@ -87,11 +87,12 @@ namespace ICGSoftware.LogAuswertung
                 //looping through all files in the input current folder
                 for (int j = 0; j < amountOfFiles; j++)
                 {
+                    //outputFilePath is declared
                     outputFilePath = Path.Combine(outputFolder + "\\ExtentionLog" + fileNames[j].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 8));
-
+                    //outputFile is Changed to include the file name and the number of files made
                     outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
 
-
+                    //outputfileOld is used to check if a new file is needed
                     if (outputFile.Split("_")[0] + ".txt" != outputFileOld.Split("_")[0] + ".txt")
                     {
                         extractedLines.Clear();
@@ -155,7 +156,7 @@ namespace ICGSoftware.LogAuswertung
                                     long fileSize = fileInfo.Length;
                                     ConsoleLogsAndInformation(settings.inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
 
-                                    if (fileSize / 1024 >= settings.maxSizeInKB - 50)
+                                    if (fileSize / 1024 >= settings.maxSizeInKB - 20)
                                     {
                                         madeNewFilesCount++;
                                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");

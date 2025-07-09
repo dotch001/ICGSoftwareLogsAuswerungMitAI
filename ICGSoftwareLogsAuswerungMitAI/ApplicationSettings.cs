@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace ICGSoftware.LogAuswertung
 {
-
     class ApplicationSettings
     {
         public string ApiKey { get; set; }
