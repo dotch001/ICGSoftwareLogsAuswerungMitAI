@@ -155,7 +155,7 @@ namespace ICGSoftware.LogAuswertung
                                     long fileSize = fileInfo.Length;
                                     ConsoleLogsAndInformation(settings.inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
 
-                                    if (fileSize / 1024 >= settings.maxSizeInKB)
+                                    if (fileSize / 1024 >= settings.maxSizeInKB - 50)
                                     {
                                         madeNewFilesCount++;
                                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
