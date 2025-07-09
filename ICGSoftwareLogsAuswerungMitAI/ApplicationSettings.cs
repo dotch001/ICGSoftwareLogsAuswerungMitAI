@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace ICGSoftware.LogAuswertung
 {
-    class ApplicationSettings
+    public class ApplicationSettingsClass
     {
-        public string ApiKey { get; set; }
-        public string Question { get; set; }
-        public string startTerm { get; set; }
-        public string[] inputFolderPaths { get; set; }
+        public required string ApiKey { get; set; }
+        public required string Question { get; set; }
+        public required string startTerm { get; set; }
+        public required string[] inputFolderPaths { get; set; }
         public string outputFolderPath { get; set; }
-        public bool inform { get; set; }
-        public bool AskGPT { get; set; }
+        public bool Inform { get; set; }
+        public bool AskAI { get; set; }
+        public required string[] models { get; set; }
+        public int chosenModel { get; set; }
         public int maxSizeInKB { get; set; }
     }
 

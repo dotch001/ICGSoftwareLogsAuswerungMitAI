@@ -1,28 +1,32 @@
-﻿using System;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO;
-using System.IO.Compression;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
+﻿using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.Extensions.Configuration;
-using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using ICGSoftware.Service;
+
 
 
 namespace ICGSoftware.LogAuswertung
 {
-    class Program
+    public class FilterErrAndAskAIClass
     {
+
         static public async Task Main()
         {
-            //declaring variables
+            await FilterErrAndAskAI();
+        }
+
+        public static async Task FilterErrAndAskAI()
+        {
+
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("applicationSettings.json")
+                .Build();
+
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettingsClass>();
+
+            // Declaring variables
             int amountOfFiles;
             string[] fileNames;
 
@@ -30,8 +34,6 @@ namespace ICGSoftware.LogAuswertung
             string outputFile = "";
             string outputFileOld = outputFile;
             string outputFilePath;
-
-
 
             string inputPath;
 
@@ -42,57 +44,56 @@ namespace ICGSoftware.LogAuswertung
 
             bool found = false;
 
-
             int madeNewFilesCount = 0;
 
-            var OverwritePrevention = 0;
+            var overwritePrevention = 0;
 
-            //configuration of ApplicationSettings
-            var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
+            string fileAsText = "";
 
-            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            string model;
 
+            // Configuration of ApplicationSettings
+            
 
-            //looping through all input folder paths
+            // Looping through all input folder paths
             for (int i = 0; i < settings.inputFolderPaths.Length; i++)
             {
-                //getting input folder paths and files (for reading and naming)
+                // Getting input folder paths and files (for reading and naming)
                 amountOfFiles = Directory.GetFiles(settings.inputFolderPaths[i]).Length;
                 fileNames = Directory.GetFiles(settings.inputFolderPaths[i]);
 
-                //making output folder
+                // Making output folder
                 if (settings.outputFolderPath == null)
                 {
-                    outputFolder = settings.inputFolderPaths[i] + "\\Output";
-                    while (Directory.Exists(outputFolder)) { OverwritePrevention++; outputFolder = settings.inputFolderPaths[i] + "\\Output" + OverwritePrevention; }
+                    outputFolder = settings.inputFolderPaths[i] + "\\ExtentionLogsFolder";
+                    while (Directory.Exists(outputFolder))
+                    {
+                        overwritePrevention++;
+                        outputFolder = settings.inputFolderPaths[i] + "\\ExtentionLogsFolder" + overwritePrevention;
+                    }
+                    
                 }
                 else
                 {
-                    outputFolder = settings.outputFolderPath;
+                    outputFolder = settings.outputFolderPath + "\\ExtentionLogsFolder";
                 }
+                Directory.CreateDirectory(outputFolder);
 
-                if (!Directory.Exists(outputFolder))
-                {
-                    Directory.CreateDirectory(outputFolder);
-                }
-
-                //defining endTermOld (when endTermOld != endTermNew make new folder for different days)
+                // Defining endTermOld (when endTermOld != endTermNew make new folder for different days)
                 endTermOld = fileNames[0].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 4);
 
-                //declaring a list to store extracted lines
+                // Declaring a list to store extracted lines
                 List<string> extractedLines = new List<string>();
 
-                //looping through all files in the input current folder
+                // Looping through all files in the input current folder
                 for (int j = 0; j < amountOfFiles; j++)
                 {
-                    //outputFilePath is declared
+                    // OutputFilePath is declared
                     outputFilePath = Path.Combine(outputFolder + "\\ExtentionLog" + fileNames[j].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 8));
-                    //outputFile is Changed to include the file name and the number of files made
+                    // OutputFile is changed to include the file name and the number of files made
                     outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
 
-                    //outputfileOld is used to check if a new file is needed
+                    // OutputFileOld is used to check if a new file is needed
                     if (outputFile.Split("_")[0] + ".txt" != outputFileOld.Split("_")[0] + ".txt")
                     {
                         extractedLines.Clear();
@@ -100,11 +101,10 @@ namespace ICGSoftware.LogAuswertung
                         outputFileOld = outputFile;
                     }
 
-
-                    //declaring endTermNew (for comparing with endTermOld)
+                    // Declaring endTermNew (for comparing with endTermOld)
                     endTermNew = fileNames[j].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 4);
 
-                    //checking if new output file is needed
+                    // Checking if new output file is needed
                     if (endTermOld != endTermNew)
                     {
                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
@@ -112,13 +112,13 @@ namespace ICGSoftware.LogAuswertung
                         endTermOld = endTermNew;
                     }
 
-                    //inputPath of current file
+                    // InputPath of current file
                     inputPath = fileNames[j];
 
-                    //reseting the found bool (wether the startTerm has been found) for the current loop
+                    // Resetting the found bool (whether the startTerm has been found) for the current loop
                     found = false;
 
-                    //checking if the startTerm is in the file
+                    // Checking if the startTerm is in the file
                     using (StreamReader reader = new StreamReader(inputPath))
                     {
                         string? lineread;
@@ -130,23 +130,23 @@ namespace ICGSoftware.LogAuswertung
                             }
                         }
                     }
-                    //if the startTerm is not found, continue to the next file
+
+                    // If the startTerm is not found, continue to the next file
                     if (!found)
                     {
-                        //informs of no errors
-                        ConsoleLogsAndInformation(settings.inform, ((j + 1) + " fertig von " + amountOfFiles + " (Kein Error gefunden)"));
+                        // Informs of no errors
+                        ConsoleLogsAndInformation(settings.Inform, ((j + 1) + " fertig von " + amountOfFiles + " (Kein Error gefunden)"));
                         continue;
                     }
-                    //if the startTerm is found, continue with extracting lines
+                    // If the startTerm is found, continue with extracting lines
                     else
                     {
-                        //scanning each line in the file
+                        // Scanning each line in the file
                         foreach (string line in File.ReadLines(inputPath))
                         {
-                            //checking if the line contains the endTerm (if so extracts all lines and resets isBetween)
+                            // Checking if the line contains the endTerm (if so extracts all lines and resets isBetween)
                             if (line.Contains(endTermOld) && isBetween)
                             {
-
                                 isBetween = false;
                                 File.WriteAllLines(outputFile, extractedLines);
 
@@ -154,48 +154,59 @@ namespace ICGSoftware.LogAuswertung
                                 {
                                     FileInfo fileInfo = new FileInfo(outputFile);
                                     long fileSize = fileInfo.Length;
-                                    ConsoleLogsAndInformation(settings.inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
+                                    ConsoleLogsAndInformation(settings.Inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
 
-                                    if (fileSize / 1024 >= settings.maxSizeInKB - 20)
+                                    if (fileSize / 1024 >= settings.maxSizeInKB)
                                     {
                                         madeNewFilesCount++;
                                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
                                         outputFileOld = outputFile;
-                                        ConsoleLogsAndInformation(settings.inform, "Neue Datei erstellt: " + outputFile);
+                                        ConsoleLogsAndInformation(settings.Inform, "Neue Datei erstellt: " + outputFile);
                                         extractedLines.Clear();
                                     }
                                 }
-
                             }
 
-                            //checking if the line contains the startTerm (if so sets isBetween to true)
+                            // Checking if the line contains the startTerm (if so sets isBetween to true)
                             if (line.Contains(settings.startTerm)) { isBetween = true; }
 
-                            //checking if the line contains the endTerm (if so adds the line to extracted lines list)     
+                            // Checking if the line contains the endTerm (if so adds the line to extracted lines list)
                             if (isBetween) { extractedLines.Add(line); }
-
                         }
                     }
 
-                    //informs about the progress
-                    ConsoleLogsAndInformation(settings.inform, (j + 1) + " fertig von " + amountOfFiles);
-
+                    // Informs about the progress
+                    ConsoleLogsAndInformation(settings.Inform, (j + 1) + " fertig von " + amountOfFiles);
                 }
 
-                //asks chatGPT about the files in the output folder (for each file)
-                if (settings.AskGPT)
+                // Asks AI about the files in the output folder (for each file)
+                if (settings.AskAI)
                 {
                     for (int k = 0; k < Directory.GetFiles(outputFolder).Length; k++)
                     {
-                        string[] filesInOutput = Directory.GetFiles(outputFolder);
-                        string PathToFile = filesInOutput[k];
-                        await AskChatGPTAboutFile(settings.ApiKey, PathToFile, settings.Question);
+                        string response = await AskAndGetResponse(outputFolder, k, fileAsText, settings);
+                        Console.WriteLine(response);
                     }
                 }
-                else { Console.WriteLine("done"); }
+            }
+        }
+
+        public static async Task<string> AskAndGetResponse(string outputFolder, int k, string fileAsText, ApplicationSettingsClass settings) 
+        {
+            string[] filesInOutput = Directory.GetFiles(outputFolder);
+            string PathToFile = filesInOutput[k];
+
+            using (StreamReader reader = new StreamReader(PathToFile))
+            {
+                fileAsText = reader.ReadToEnd();
             }
 
+            Console.WriteLine($"\n\n----------------------------------------------{PathToFile.Substring(PathToFile.IndexOf("ExtentionLogsFolder\\ExtentionLog") + 1)}----------------------------------------------\n\n");
+            string model = settings.models[settings.chosenModel];
+            string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model);
+            return response;
         }
+
 
         public static void ConsoleLogsAndInformation(bool inform, string theInformation)
         {
@@ -205,7 +216,51 @@ namespace ICGSoftware.LogAuswertung
             }
         }
 
+
+
+
+        //ask deepseek about a file
+        static async Task<string> AskQuestionAboutFile(string apiKey, string question, string FileAsText, string model)
+        {
+            var apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+            var requestBody = new
+            {
+                model = model,
+                messages = new[]
+                {
+            new { role = "user", content = question + FileAsText }
+        }
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(apiUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Error: {response.StatusCode}");
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
+                return "[API error]";
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            var json = JsonNode.Parse(responseString);
+            var messageContent = json?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+            var cleanedContent = Regex.Replace(messageContent ?? "", @"\n{3,}", "\n\n").Trim();
+
+            return string.IsNullOrWhiteSpace(cleanedContent) ? "Raw Response: " + responseString : cleanedContent;
+        }
+
+
+
         //function to ask ChatGPT about a file
+        /*
         public static async Task AskChatGPTAboutFile(string apiKey, string filePath, string question)
         {
             using var client = new HttpClient();
@@ -249,9 +304,6 @@ namespace ICGSoftware.LogAuswertung
             Console.WriteLine("ChatGPT Antwort:");
             Console.WriteLine(result);
         }
-
-
-
-
+        */
     }
 }
