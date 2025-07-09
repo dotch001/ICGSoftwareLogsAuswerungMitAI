@@ -16,7 +16,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 
 
-namespace ICGSoftwareLogAuswertung
+namespace ICGSoftware.LogAuswertung
 {
     class Program
     {
@@ -63,10 +63,20 @@ namespace ICGSoftwareLogAuswertung
                 fileNames = Directory.GetFiles(settings.inputFolderPaths[i]);
 
                 //making output folder
-                outputFolder = settings.inputFolderPaths[i] + "\\Output";
-                while (Directory.Exists(outputFolder)) { OverwritePrevention++; outputFolder = settings.inputFolderPaths[i] + "\\Output" + OverwritePrevention; }
+                if (settings.outputFolderPath == "")
+                {
+                    outputFolder = settings.inputFolderPaths[i] + "\\Output";
+                    while (Directory.Exists(outputFolder)) { OverwritePrevention++; outputFolder = settings.inputFolderPaths[i] + "\\Output" + OverwritePrevention; }
+                }
+                else
+                {
+                    outputFolder = settings.outputFolderPath;
+                }
 
-                Directory.CreateDirectory(outputFolder);
+                if (!Directory.Exists(outputFolder))
+                {
+                    Directory.CreateDirectory(outputFolder);
+                }
 
                 //defining endTermOld (when endTermOld != endTermNew make new folder for different days)
                 endTermOld = fileNames[0].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 4);
@@ -145,7 +155,7 @@ namespace ICGSoftwareLogAuswertung
                                     long fileSize = fileInfo.Length;
                                     ConsoleLogsAndInformation(settings.inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
 
-                                    if (fileSize / 1024 >= 300)
+                                    if (fileSize / 1024 >= settings.maxSizeInKB)
                                     {
                                         madeNewFilesCount++;
                                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
