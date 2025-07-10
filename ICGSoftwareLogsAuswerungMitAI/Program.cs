@@ -71,13 +71,22 @@ namespace ICGSoftware.LogAuswertung
                         overwritePrevention++;
                         outputFolder = settings.inputFolderPaths[i] + "\\ExtentionLogsFolder" + overwritePrevention;
                     }
-                    
                 }
                 else
                 {
                     outputFolder = settings.outputFolderPath + "\\ExtentionLogsFolder";
+                    if (!Directory.Exists(outputFolder)) { Directory.CreateDirectory(outputFolder); }
+                    else
+                    {
+                        while (Directory.Exists(outputFolder))
+                        {
+                            overwritePrevention++;
+                            outputFolder = settings.outputFolderPath + "\\ExtentionLogsFolder" + overwritePrevention;
+                        }
+                    }
                 }
-                Directory.CreateDirectory(outputFolder);
+
+                
 
                 // Defining endTermOld (when endTermOld != endTermNew make new folder for different days)
                 endTermOld = fileNames[0].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 4);
@@ -201,6 +210,7 @@ namespace ICGSoftware.LogAuswertung
                 fileAsText = reader.ReadToEnd();
             }
 
+            await Task.Delay(1000);
             Console.WriteLine($"\n\n----------------------------------------------{PathToFile.Substring(PathToFile.IndexOf("ExtentionLogsFolder\\ExtentionLog") + 1)}----------------------------------------------\n\n");
             string model = settings.models[settings.chosenModel];
             string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model);
