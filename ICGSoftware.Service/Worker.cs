@@ -14,8 +14,6 @@ namespace ICGSoftware.Service
 {
     public class Worker : BackgroundService
     {
-
-
         private readonly ILogger<Worker> _logger;
 
         public Worker(ILogger<Worker> logger)

@@ -83,6 +83,7 @@ namespace ICGSoftware.LogAuswertung
                             overwritePrevention++;
                             outputFolder = settings.outputFolderPath + "\\ExtentionLogsFolder" + overwritePrevention;
                         }
+                        Directory.CreateDirectory(outputFolder);
                     }
                 }
 
