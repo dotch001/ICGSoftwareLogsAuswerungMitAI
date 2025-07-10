@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ICGSoftware.LogAuswertung
+namespace ICGSoftware.Library.LogsAuswerten
 {
     public class ApplicationSettingsClass
     {
@@ -13,7 +13,7 @@ namespace ICGSoftware.LogAuswertung
         public required string startTerm { get; set; }
         public required string[] inputFolderPaths { get; set; }
         public string outputFolderPath { get; set; }
-        public bool Inform { get; set; }
+        public bool inform { get; set; }
         public bool AskAI { get; set; }
         public required string[] models { get; set; }
         public int chosenModel { get; set; }

@@ -3,31 +3,20 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using ICGSoftware.Library;
+using Microsoft.Extensions.Configuration.Json;
+using ICGSoftware.Library.LogsAuswerten;
 
 
 
-namespace ICGSoftware.LogAuswertung
+
+namespace ICGSoftware.Library.LogsAuswerten
 {
     public class FilterErrAndAskAIClass
     {
-
-        static public async Task Main()
-        {
-            await Library.LogsAuswerten.FilterErrAndAskAIClass.FilterErrAndAskAI();
-        }
-
-
-
-        /*
-        public static async Task FilterErrAndAskAI()
+        public static async Task<string> FilterErrAndAskAI()
         {
 
-            var config = new ConfigurationBuilder()
-                .AddJsonFile("applicationSettings.json")
-                .Build();
-
-            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettingsClass>();
+            
 
             // Declaring variables
             int amountOfFiles;
@@ -53,10 +42,17 @@ namespace ICGSoftware.LogAuswertung
 
             string fileAsText = "";
 
-            string model;
+            string allResponses = "";
 
             // Configuration of ApplicationSettings
-            
+
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("applicationSettings_LogsAuswerten.json")
+                .Build();
+
+            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettingsClass>();
+
+
 
             // Looping through all input folder paths
             for (int i = 0; i < settings.inputFolderPaths.Length; i++)
@@ -91,7 +87,7 @@ namespace ICGSoftware.LogAuswertung
                     }
                 }
 
-                
+
 
                 // Defining endTermOld (when endTermOld != endTermNew make new folder for different days)
                 endTermOld = fileNames[0].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 4);
@@ -149,7 +145,7 @@ namespace ICGSoftware.LogAuswertung
                     if (!found)
                     {
                         // Informs of no errors
-                        ConsoleLogsAndInformation(settings.Inform, ((j + 1) + " fertig von " + amountOfFiles + " (Kein Error gefunden)"));
+                        ConsoleLogsAndInformation(settings.inform, ((j + 1) + " fertig von " + amountOfFiles + " (Kein Error gefunden)"));
                         continue;
                     }
                     // If the startTerm is found, continue with extracting lines
@@ -168,14 +164,14 @@ namespace ICGSoftware.LogAuswertung
                                 {
                                     FileInfo fileInfo = new FileInfo(outputFile);
                                     long fileSize = fileInfo.Length;
-                                    ConsoleLogsAndInformation(settings.Inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
+                                    ConsoleLogsAndInformation(settings.inform, $"File size: {fileSize / 1024} KB of file {fileInfo.Name}");
 
-                                    if (fileSize / 1024 >= settings.maxSizeInKB)
+                                    if (fileSize / 1024 >= settings.maxSizeInKB - 20)
                                     {
                                         madeNewFilesCount++;
                                         outputFile = Path.Combine(outputFilePath + "_" + madeNewFilesCount + ".txt");
                                         outputFileOld = outputFile;
-                                        ConsoleLogsAndInformation(settings.Inform, "Neue Datei erstellt: " + outputFile);
+                                        ConsoleLogsAndInformation(settings.inform, "Neue Datei erstellt: " + outputFile);
                                         extractedLines.Clear();
                                     }
                                 }
@@ -190,7 +186,7 @@ namespace ICGSoftware.LogAuswertung
                     }
 
                     // Informs about the progress
-                    ConsoleLogsAndInformation(settings.Inform, (j + 1) + " fertig von " + amountOfFiles);
+                    ConsoleLogsAndInformation(settings.inform, (j + 1) + " fertig von " + amountOfFiles);
                 }
 
                 // Asks AI about the files in the output folder (for each file)
@@ -199,13 +195,16 @@ namespace ICGSoftware.LogAuswertung
                     for (int k = 0; k < Directory.GetFiles(outputFolder).Length; k++)
                     {
                         string response = await AskAndGetResponse(outputFolder, k, fileAsText, settings);
-                        Console.WriteLine(response);
+                        allResponses = allResponses + $"<br />----------------------------------------------{outputFolder}----------------------------------------------<br />" + response;
+                        ConsoleLogsAndInformation(settings.inform, response);
                     }
                 }
             }
+
+            return allResponses;
         }
 
-        public static async Task<string> AskAndGetResponse(string outputFolder, int k, string fileAsText, ApplicationSettingsClass settings) 
+        public static async Task<string> AskAndGetResponse(string outputFolder, int k, string fileAsText, ApplicationSettingsClass settings)
         {
             string[] filesInOutput = Directory.GetFiles(outputFolder);
             string PathToFile = filesInOutput[k];
@@ -216,9 +215,9 @@ namespace ICGSoftware.LogAuswertung
             }
 
             await Task.Delay(1000);
-            Console.WriteLine($"\n\n----------------------------------------------{PathToFile.Substring(PathToFile.IndexOf("ExtentionLogsFolder\\ExtentionLog") + 1)}----------------------------------------------\n\n");
+            ConsoleLogsAndInformation(settings.inform, $"\n\n----------------------------------------------{PathToFile}----------------------------------------------\n\n");
             string model = settings.models[settings.chosenModel];
-            string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model);
+            string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model, settings);
             return response;
         }
 
@@ -231,92 +230,44 @@ namespace ICGSoftware.LogAuswertung
             }
         }
 
-        //ask deepseek about a file
-        static async Task<string> AskQuestionAboutFile(string apiKey, string question, string FileAsText, string model)
+        //ask AI about a file
+        static async Task<string> AskQuestionAboutFile(string apiKey, string question, string FileAsText, string model, ApplicationSettingsClass settings)
         {
-            var apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+                var apiUrl = "https://openrouter.ai/api/v1/chat/completions";
 
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-            var requestBody = new
-            {
-                model = model,
-                messages = new[]
+                var requestBody = new
                 {
+                    model = model,
+                    messages = new[]
+                    {
             new { role = "user", content = question + FileAsText }
-        }
-            };
-
-            var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(apiUrl, content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine($"Error: {response.StatusCode}");
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
-                return "[API error]";
             }
+                };
 
-            var responseString = await response.Content.ReadAsStringAsync();
+                var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
-            var json = JsonNode.Parse(responseString);
-            var messageContent = json?["choices"]?[0]?["message"]?["content"]?.ToString();
+                var response = await client.PostAsync(apiUrl, content);
 
-            var cleanedContent = Regex.Replace(messageContent ?? "", @"\n{3,}", "\n\n").Trim();
-
-            return string.IsNullOrWhiteSpace(cleanedContent) ? "Raw Response: " + responseString : cleanedContent;
-        }
-
-
-
-        //function to ask ChatGPT about a file
-        /*
-        public static async Task AskChatGPTAboutFile(string apiKey, string filePath, string question)
-        {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-            // Step 1: Upload the file
-            var form = new MultipartFormDataContent();
-            form.Add(new StreamContent(File.OpenRead(filePath)), "file", Path.GetFileName(filePath));
-            form.Add(new StringContent("assistants"), "purpose");
-
-            var uploadResponse = await client.PostAsync("https://api.openai.com/v1/files", form);
-            var uploadResult = await uploadResponse.Content.ReadAsStringAsync();
-
-            if (!uploadResponse.IsSuccessStatusCode)
-            {
-                Console.WriteLine("File hochladen nicht geschafft:");
-                Console.WriteLine(uploadResult);
-                return;
-            }
-
-            using var uploadJson = JsonDocument.Parse(uploadResult);
-            string fileId = uploadJson.RootElement.GetProperty("id").GetString();
-            Console.WriteLine(" File hochgeladen. ID: " + fileId);
-
-            // Step 2: Ask a question (basic GPT-4 prompt, not full file analysis)
-            var requestBody = new
-            {
-                model = "gpt-3.5",
-                messages = new[]
+                if (!response.IsSuccessStatusCode)
                 {
-                    new { role = "user", content = question + "\n(File ID: " + fileId + ")" }
+                    ConsoleLogsAndInformation(settings.inform, $"Error: {response.StatusCode}");
+                    ConsoleLogsAndInformation(settings.inform, await response.Content.ReadAsStringAsync());
+                    return "[API error]";
                 }
-            };
 
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var responseString = await response.Content.ReadAsStringAsync();
 
-            var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
-            var result = await response.Content.ReadAsStringAsync();
+                var json = JsonNode.Parse(responseString);
+                var messageContent = json?["choices"]?[0]?["message"]?["content"]?.ToString();
 
-            Console.WriteLine("ChatGPT Antwort:");
-            Console.WriteLine(result);
+                var cleanedContent = Regex.Replace(messageContent ?? "", @"\n{3,}", "\n\n").Trim();
+
+                return string.IsNullOrWhiteSpace(cleanedContent) ? "Raw Response: " + responseString : cleanedContent;
+            
+                
         }
-        */
-        
     }
 }

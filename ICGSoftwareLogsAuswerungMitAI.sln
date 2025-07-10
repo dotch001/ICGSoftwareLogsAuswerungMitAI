@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.LogAuswertung",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Service", "ICGSoftware.Service\ICGSoftware.Service.csproj", "{700AE34F-2982-4BBD-8A87-44EA41598455}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.LogsAuswerten", "ICGSoftware.Library\ICGSoftware.Library.LogsAuswerten.csproj", "{1B52EDBB-D970-44D1-8254-B855F13D7FAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.EmailVersenden", "ICGSoftware.Library.EmailVersenden\ICGSoftware.Library.EmailVersenden.csproj", "{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{700AE34F-2982-4BBD-8A87-44EA41598455}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{700AE34F-2982-4BBD-8A87-44EA41598455}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{700AE34F-2982-4BBD-8A87-44EA41598455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B52EDBB-D970-44D1-8254-B855F13D7FAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B52EDBB-D970-44D1-8254-B855F13D7FAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B52EDBB-D970-44D1-8254-B855F13D7FAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B52EDBB-D970-44D1-8254-B855F13D7FAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

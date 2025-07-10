@@ -1,5 +1,5 @@
 using System;
-using ICGSoftware.LogAuswertung;
+using ICGSoftware.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using ICGSoftware.Service;
+using ICGSoftware.Library.EmailVersenden;
+using ICGSoftware.Library.LogsAuswerten;
 
 namespace ICGSoftware.Service
 {
@@ -23,8 +24,9 @@ namespace ICGSoftware.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await LogAuswertung.FilterErrAndAskAIClass.FilterErrAndAskAI();
-            
+            string AiResponse = await FilterErrAndAskAIClass.FilterErrAndAskAI();
+
+            await EmailVersendenClass.Process(AiResponse);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -34,10 +36,7 @@ namespace ICGSoftware.Service
                 }
                 await Task.Delay(1000, stoppingToken);
             }
-            
         }
-
-        
     }
 }
 
