@@ -1,14 +1,14 @@
 {
   "ApplicationSettings": {
-    "ApiKey": "API-HIER",
-    "Question": "sehr kurz zusammengefasst,was sind die Hauptursachen für die Fehler in dieser Logdatei? Antworte umdebingt auf Deutsch ",
+    "ApiKey": "API",
+    "Question": "sehr kurz zusammengefasst,was sind die Hauptursachen für die Fehler in dieser Logdatei? Antworte umdebingt auf Deutsch",
     "inputFolderPaths": [ "C:\\Users\\di\\Desktop\\C# Projekte\\ChatGPTAuswertenLassenProjekt\\Test1" ],
     "outputFolderPath": "C:\\Users\\di\\Desktop\\C# Projekte\\ChatGPTAuswertenLassenProjekt\\Test1",
     "startTerm": "[ERR]",
     "inform": true,
     "AskAI": true,
     "models": [ "deepseek/deepseek-r1-0528-qwen3-8b:free", "tencent/hunyuan-a13b-instruct:free", "openrouter/cypher-alpha:free", "deepseek/deepseek-r1-0528:free", "google/gemma-3n-e4b-it:free", "qwen/qwen3-30b-a3b:free" ],
-    "chosenModel": 0,
+    "chosenModel": 4,
     "maxSizeInKB": 80
   }
 }

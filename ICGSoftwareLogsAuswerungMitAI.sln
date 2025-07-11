@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.LogAuswertung", "ICGSoftwareLogsAuswerungMitAI\ICGSoftware.LogAuswertung.csproj", "{C440677C-43B5-4145-B8B0-C9D01E8CE83F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JustinCase", "ICGSoftwareLogsAuswerungMitAI\JustinCase.csproj", "{C440677C-43B5-4145-B8B0-C9D01E8CE83F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Service", "ICGSoftware.Service\ICGSoftware.Service.csproj", "{700AE34F-2982-4BBD-8A87-44EA41598455}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.LogsAuswerten", "ICGSoftware.Library\ICGSoftware.Library.LogsAuswerten.csproj", "{1B52EDBB-D970-44D1-8254-B855F13D7FAB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.EmailVersenden", "ICGSoftware.Library.EmailVersenden\ICGSoftware.Library.EmailVersenden.csproj", "{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.Logging", "ICGSoftware.LIbrary.Logging\ICGSoftware.Library.Logging.csproj", "{2F65898A-BC62-4107-A26F-A9F058FAF128}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICGSoftware.Library.ErrorsKategorisierenUndZählen", "ICGSoftware.Library.ErrorsKategorisierenUndZählen\ICGSoftware.Library.ErrorsKategorisierenUndZählen.csproj", "{142FB2BB-8596-4330-8686-7F1139189542}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{329CBFF9-C7EC-49EC-9BA1-EE0B5B3EC411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F65898A-BC62-4107-A26F-A9F058FAF128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F65898A-BC62-4107-A26F-A9F058FAF128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F65898A-BC62-4107-A26F-A9F058FAF128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F65898A-BC62-4107-A26F-A9F058FAF128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{142FB2BB-8596-4330-8686-7F1139189542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{142FB2BB-8596-4330-8686-7F1139189542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{142FB2BB-8596-4330-8686-7F1139189542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{142FB2BB-8596-4330-8686-7F1139189542}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

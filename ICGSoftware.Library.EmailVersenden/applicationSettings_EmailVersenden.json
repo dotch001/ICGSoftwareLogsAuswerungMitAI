@@ -1,12 +1,12 @@
 {
   "ApplicationSettings": {
     "recipientEmails": [ "djole.ivankovic@gmail.com" ],
-    "senderEmail": "automat@icg-software.de",
+    "senderEmail": "MAIL",
     "subject": "ICG Software Automatic Mail"
   },
   "AuthenticationSettings": {
-    "TenantId": "TenantID Hier",
-    "ClientId": "ClientId Hier",
-    "ClientSecret": "Client Secret Hier"
+    "TenantId": "TENANT",
+    "ClientId": "CLIENT",
+    "ClientSecret": "SECRET"
   }
 }
