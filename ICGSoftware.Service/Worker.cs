@@ -1,11 +1,6 @@
 using ICGSoftware.Library.EmailVersenden;
 using ICGSoftware.Library.Logging;
 using ICGSoftware.Library.LogsAuswerten;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ICGSoftware.Service
 {
@@ -20,20 +15,22 @@ namespace ICGSoftware.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            LoggingClass.LogInformation("Worker started at: " + DateTimeOffset.Now);
+            LoggingClass.LoggerFunction("Info", "Worker started");
 
             try
             {
                 string aiResponse = await FilterErrAndAskAIClass.FilterErrAndAskAI(stoppingToken);
                 await EmailVersendenClass.Process(aiResponse);
 
-                LoggingClass.LogInformation("Worker finished at: " +  DateTimeOffset.Now);
+                LoggingClass.LoggerFunction("Info", "Worker finished");
+
                 Environment.Exit(0);
 
             }
             catch (Exception ex)
             {
-                LoggingClass.LogInformation(ex + " Worker crashed");
+                LoggingClass.LoggerFunction("Error", ex + " Worker crashed");
+                Environment.Exit(1);
             }
         }
 

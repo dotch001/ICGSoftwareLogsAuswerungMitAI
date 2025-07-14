@@ -1,14 +1,10 @@
 ﻿using ICGSoftware.Library.Logging;
-using ICGSoftware.Library.LogsAuswerten;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using ICGSoftware.Library.ErrorsKategorisierenUndZählen;
-using Microsoft.Graph.Models;
-
 
 
 namespace ICGSoftware.Library.LogsAuswerten
@@ -205,7 +201,7 @@ namespace ICGSoftware.Library.LogsAuswerten
                     // Asks AI about the files in the output folder (for each file)
                     if (settings.AskAI)
                     {
-                        LoggingClass.LogInformation("Asking AI");
+                        LoggingClass.LoggerFunction("Info", "Asking AI");
                         for (int k = 0; k < Directory.GetFiles(outputFolder).Length; k++)
                         {
                             string[] filesInOutput = Directory.GetFiles(outputFolder);
@@ -222,7 +218,7 @@ namespace ICGSoftware.Library.LogsAuswerten
             }
             catch (Exception ex)
             {
-                LoggingClass.LogInformation($"Error: {ex.Message}");
+                LoggingClass.LoggerFunction("Error", $"Error: {ex.Message}");
                 return "Error: " + ex.Message;
             }
 

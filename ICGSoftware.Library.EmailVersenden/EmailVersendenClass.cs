@@ -1,20 +1,10 @@
 ﻿using Azure.Identity;
-using Azure.Identity;
-using Azure.Messaging;
-using ICGSoftware.Library.EmailVersenden;
 using ICGSoftware.Library.Logging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Graph;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Users.Item.SendMail;
 using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Threading.Tasks;
 using ICGSoftware.Library.LogsAuswerten;
 
 namespace ICGSoftware.Library.EmailVersenden
@@ -43,10 +33,12 @@ namespace ICGSoftware.Library.EmailVersenden
                 var accessToken = authResult.AccessToken;
 
                 await SendEmail(settings, authSettings, Message);
+                
+
             }
             catch (Exception ex)
             {
-                LoggingClass.LogInformation($"Error sending email: {ex.Message}");
+                LoggingClass.LoggerFunction("Error", $"Error sending email: {ex.Message}");
             }
         }
 
@@ -58,8 +50,6 @@ namespace ICGSoftware.Library.EmailVersenden
 
                 var jsonContentBytes = await File.ReadAllBytesAsync(Path.Combine(outputFile, "Error Liste.txt"));
                 var jsonFileName = Path.GetFileName(Path.Combine(outputFile, "Error Liste.txt"));
-
-                LoggingClass.LogInformation(jsonFileName);
 
                 var scopes = new[] { "https://graph.microsoft.com/.default" };
                 var options = new ClientSecretCredentialOptions
@@ -116,13 +106,11 @@ namespace ICGSoftware.Library.EmailVersenden
                         .SendMail
                         .PostAsync(sendMailBody);
                 }
-
-                LoggingClass.LogInformation("Email sent successfully");
+                LoggingClass.LoggerFunction("Info", "Email sent successfully");
                 return;
             }
             catch (Exception ex)
             {
-                LoggingClass.LogInformation($"Error sending email: {ex.Message}");
                 return;
             }
         }

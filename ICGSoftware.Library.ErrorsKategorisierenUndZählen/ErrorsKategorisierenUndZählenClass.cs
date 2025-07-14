@@ -1,12 +1,6 @@
-﻿using Microsoft.Extensions.Configuration.Json;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ICGSoftware.Library.ErrorsKategorisierenUndZählen
 {

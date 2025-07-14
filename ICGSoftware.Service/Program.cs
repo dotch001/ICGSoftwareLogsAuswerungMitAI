@@ -9,7 +9,6 @@ class Program
 
         Console.CancelKeyPress += (sender, eventArgs) =>
         {
-            Console.WriteLine("Cancellation requested...");
             eventArgs.Cancel = true;
             cts.Cancel();
         };
