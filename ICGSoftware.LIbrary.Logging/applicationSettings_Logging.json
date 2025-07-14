@@ -1,6 +1,6 @@
 {
   "ApplicationSettings": {
-    "logFileName": "LogAuswertungLog",
+    "logFileName": "LogAuswertungLogs",
     "outputFolder": "C:\\Users\\di\\Desktop\\C# Projekte\\ChatGPTAuswertenLassenProjekt\\Test1\\Log"
   }
 }

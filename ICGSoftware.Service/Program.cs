@@ -1,7 +1,31 @@
 using ICGSoftware.Service;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+class Program
+{
+    public static async Task Main(string[] args)
+    {
+        using var cts = new CancellationTokenSource();
 
-var host = builder.Build();
-host.Run();
+        Console.CancelKeyPress += (sender, eventArgs) =>
+        {
+            Console.WriteLine("Cancellation requested...");
+            eventArgs.Cancel = true;
+            cts.Cancel();
+        };
+
+        await Host.CreateDefaultBuilder(args)
+        .UseWindowsService() // Ensure the Microsoft.Extensions.Hosting.WindowsServices package is installed  
+        .ConfigureServices(services =>
+        {
+            services.AddHostedService<Worker>();
+        })
+        .ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddConsole();
+        })
+        .Build()
+        .RunAsync(cts.Token);
+    }
+}

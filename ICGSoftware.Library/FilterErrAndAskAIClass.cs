@@ -15,28 +15,18 @@ namespace ICGSoftware.Library.LogsAuswerten
 {
     public class FilterErrAndAskAIClass
     {
-        public static async Task<ApplicationSettingsClass?> giveSettings() 
+        private static string outputFile = "";
+        private static string outputFolder = "";
+        public static async Task<string> FilterErrAndAskAI(CancellationToken stoppingToken)
         {
-
-            var config = new ConfigurationBuilder()
-                    .AddJsonFile("applicationSettings_LogsAuswerten.json")
-                    .Build();
-
-            var settings = config.GetSection("ApplicationSettings").Get<ApplicationSettingsClass>();
-
-            return settings;
-        }
-        public static async Task<string> FilterErrAndAskAI()
-        {
-
             
+
+
 
             // Declaring variables
             int amountOfFiles;
             string[] fileNames;
-
-            string outputFolder;
-            string outputFile = "";
+            
             string outputFileOld = outputFile;
             string outputFilePath;
 
@@ -71,6 +61,10 @@ namespace ICGSoftware.Library.LogsAuswerten
                 // Looping through all input folder paths
                 for (int i = 0; i < settings.inputFolderPaths.Length; i++)
                 {
+                    stoppingToken.ThrowIfCancellationRequested();
+                    // or check periodically
+                    if (stoppingToken.IsCancellationRequested) return "";
+
                     // Getting input folder paths and files (for reading and naming)
                     amountOfFiles = Directory.GetFiles(settings.inputFolderPaths[i]).Length;
                     fileNames = Directory.GetFiles(settings.inputFolderPaths[i]);
@@ -112,6 +106,9 @@ namespace ICGSoftware.Library.LogsAuswerten
                     // Looping through all files in the input current folder
                     for (int j = 0; j < amountOfFiles; j++)
                     {
+                        stoppingToken.ThrowIfCancellationRequested();
+                        // or check periodically
+                        if (stoppingToken.IsCancellationRequested) return "";
                         // OutputFilePath is declared
                         outputFilePath = Path.Combine(outputFolder + "\\ExtentionLog" + fileNames[j].Replace(settings.inputFolderPaths[i] + "\\TritomWeb.Api", "").Substring(0, 8));
                         // OutputFile is changed to include the file name and the number of files made
@@ -203,19 +200,24 @@ namespace ICGSoftware.Library.LogsAuswerten
                         ConsoleLogsAndInformation(settings.inform, (j + 1) + " fertig von " + amountOfFiles);
                     }
 
+                    
+
                     // Asks AI about the files in the output folder (for each file)
                     if (settings.AskAI)
                     {
+                        LoggingClass.LogInformation("Asking AI");
                         for (int k = 0; k < Directory.GetFiles(outputFolder).Length; k++)
                         {
-                            string response = await AskAndGetResponse(outputFolder, k, fileAsText, settings);
-                            allResponses = allResponses + $"<b><br /><br />----------------------------------------------{outputFolder}----------------------------------------------<br /><br /></b>" + response;
+                            string[] filesInOutput = Directory.GetFiles(outputFolder);
+                            string PathToFile = filesInOutput[k];
+                            string response = await AskAndGetResponse(outputFolder, k, fileAsText, settings, stoppingToken);
+                            allResponses = allResponses + $"<b><br /><br />----------------------------------------------{PathToFile}----------------------------------------------<br /><br /></b>" + response;
                             ConsoleLogsAndInformation(settings.inform, response);
                         }
                     }
                     await ErrorsKategorisierenUndZählenClass.ErrorsKategorisieren(outputFolder);
                 }
-                
+
                 return allResponses;
             }
             catch (Exception ex)
@@ -226,9 +228,15 @@ namespace ICGSoftware.Library.LogsAuswerten
 
             
         }
+        public static async Task<string> giveOutputFilepath()
+        {
+            if (outputFile != "") { return outputFile.Substring(0, outputFile.LastIndexOf("ExtentionLog")); } else { return outputFolder + "\\ExtentionLogsFolder"; }
+            
+        }
 
 
-        public static async Task<string> AskAndGetResponse(string outputFolder, int k, string fileAsText, ApplicationSettingsClass settings)
+
+        public static async Task<string> AskAndGetResponse(string outputFolder, int k, string fileAsText, ApplicationSettingsClass settings, CancellationToken stoppingToken)
         {
             string[] filesInOutput = Directory.GetFiles(outputFolder);
             string PathToFile = filesInOutput[k];
@@ -241,7 +249,7 @@ namespace ICGSoftware.Library.LogsAuswerten
             await Task.Delay(1000);
             ConsoleLogsAndInformation(settings.inform, $"\n\n----------------------------------------------{PathToFile}----------------------------------------------\n\n");
             string model = settings.models[settings.chosenModel];
-            string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model, settings);
+            string response = await AskQuestionAboutFile(settings.ApiKey, settings.Question, fileAsText, model, settings, stoppingToken);
             return response;
         }
 
@@ -255,9 +263,12 @@ namespace ICGSoftware.Library.LogsAuswerten
         }
 
         //ask AI about a file
-        public static async Task<string> AskQuestionAboutFile(string apiKey, string question, string FileAsText, string model, ApplicationSettingsClass settings)
+        public static async Task<string> AskQuestionAboutFile(string apiKey, string question, string FileAsText, string model, ApplicationSettingsClass settings, CancellationToken stoppingToken)
         {
-                var apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+            stoppingToken.ThrowIfCancellationRequested();
+            // or check periodically
+            if (stoppingToken.IsCancellationRequested) return "";
+            var apiUrl = "https://openrouter.ai/api/v1/chat/completions";
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");

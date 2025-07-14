@@ -19,8 +19,12 @@ namespace ICGSoftware.Library.Logging
 
             if (!Directory.Exists(settings.outputFolder)) { Directory.CreateDirectory(settings.outputFolder); }
 
-            Log.Logger = new LoggerConfiguration().WriteTo.File(settings.outputFolder + "\\" + settings.logFileName + ".log", rollingInterval: RollingInterval.Day).CreateLogger();
-            Log.Information(message);
+            if (!File.Exists(settings.outputFolder + "\\" + settings.logFileName + ".log")) 
+            {
+                Log.Logger = new LoggerConfiguration().WriteTo.File(settings.outputFolder + "\\" + settings.logFileName + ".log").CreateLogger();
+            }
+
+                Log.Information(message);
         }
     }
 }

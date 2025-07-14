@@ -54,10 +54,10 @@ namespace ICGSoftware.Library.EmailVersenden
         {
             try
             {
-                var settingsFromLogsAuswerten = await ICGSoftware.Library.LogsAuswerten.FilterErrAndAskAIClass.giveSettings();
+                string outputFile = await FilterErrAndAskAIClass.giveOutputFilepath();
 
-                var jsonContentBytes = await File.ReadAllBytesAsync(Path.Combine(settingsFromLogsAuswerten.outputFolderPath, "Error Liste.txt"));
-                var jsonFileName = Path.GetFileName(Path.Combine(settingsFromLogsAuswerten.outputFolderPath, "Error Liste.txt"));
+                var jsonContentBytes = await File.ReadAllBytesAsync(Path.Combine(outputFile, "Error Liste.txt"));
+                var jsonFileName = Path.GetFileName(Path.Combine(outputFile, "Error Liste.txt"));
 
                 LoggingClass.LogInformation(jsonFileName);
 
@@ -118,11 +118,12 @@ namespace ICGSoftware.Library.EmailVersenden
                 }
 
                 LoggingClass.LogInformation("Email sent successfully");
+                return;
             }
             catch (Exception ex)
             {
                 LoggingClass.LogInformation($"Error sending email: {ex.Message}");
-
+                return;
             }
         }
     }

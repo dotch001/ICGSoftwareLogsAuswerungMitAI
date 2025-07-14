@@ -1,17 +1,11 @@
-using ICGSoftware.Library;
 using ICGSoftware.Library.EmailVersenden;
-using ICGSoftware.Library.ErrorsKategorisierenUndZählen;
 using ICGSoftware.Library.Logging;
 using ICGSoftware.Library.LogsAuswerten;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ICGSoftware.Service
 {
@@ -26,22 +20,23 @@ namespace ICGSoftware.Service
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            string AiResponse = await FilterErrAndAskAIClass.FilterErrAndAskAI();
+            LoggingClass.LogInformation("Worker started at: " + DateTimeOffset.Now);
 
-            await EmailVersendenClass.Process(AiResponse);
-
-            
-
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                if (_logger.IsEnabled(LogLevel.Information))
-                {
-                    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                }
-                await Task.Delay(1000, stoppingToken);
+                string aiResponse = await FilterErrAndAskAIClass.FilterErrAndAskAI(stoppingToken);
+                await EmailVersendenClass.Process(aiResponse);
+
+                LoggingClass.LogInformation("Worker finished at: " +  DateTimeOffset.Now);
+                Environment.Exit(0);
+
+            }
+            catch (Exception ex)
+            {
+                LoggingClass.LogInformation(ex + " Worker crashed");
             }
         }
+
+
     }
 }
-

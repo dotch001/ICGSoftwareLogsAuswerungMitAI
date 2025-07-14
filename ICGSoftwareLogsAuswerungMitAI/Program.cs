@@ -14,7 +14,7 @@ namespace ICGSoftware.LogAuswertung
 
         static public async Task Main()
         {
-            await Library.LogsAuswerten.FilterErrAndAskAIClass.FilterErrAndAskAI();
+            //await Library.LogsAuswerten.FilterErrAndAskAIClass.FilterErrAndAskAI();
         }
 
 
