@@ -15,9 +15,6 @@ namespace ICGSoftware.Library.LogsAuswerten
         private static string outputFolder = "";
         public static async Task<string> FilterErrAndAskAI(CancellationToken stoppingToken)
         {
-            
-
-
 
             // Declaring variables
             int amountOfFiles;
