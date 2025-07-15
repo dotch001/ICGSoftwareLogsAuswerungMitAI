@@ -14,7 +14,7 @@ class Program
         };
 
         await Host.CreateDefaultBuilder(args)
-        .UseWindowsService() // Ensure the Microsoft.Extensions.Hosting.WindowsServices package is installed  
+        .UseWindowsService()
         .ConfigureServices(services =>
         {
             services.AddHostedService<Worker>();
